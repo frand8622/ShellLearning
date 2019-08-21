@@ -43,27 +43,47 @@ function create_html_head(){
 }
 
 function create_table_head(){
-	# echo -e "<tr><td><center><b>caseId123</b></center></td></tr>"
+	echo "<tr>"
 
-	headNames=($(echo $resultsArray | awk -F '\\},\\{' '{print $1}' | awk -F ',' '{i=1; while(i<=NF) {print "<td>"$i"</td>";i++}}'))
-	echo "headNames: "$headNames
+	# resultsArray is: "caseId":"id-1","status":"READY","Message":null,"ingestionTime":123},{"caseId":"id-2","status":"READY","Message":null,"ingestionTime":456
 
-	# echo $resultsArray | awk -F '\\},\\{' '{i=1; while(i<=NF) {print "<td>"$i"</td>";i++}}'
-
+	heads=`echo $resultsArray | awk -F '},{' '{print $1}' | awk 'BEGIN{FS=","} {i=1; while(i<=NF) {split($i, keyy, ":"); split(keyy[1], key, "\""); print "<td>"key[2]"</td>";i++}}'`
+	# heads=`echo $resultsArray | awk -F '},{' '{print $1}' | awk -F ',' '{i=1; while(i<=NF) {split($i, keyy, ":"); split(keyy[1], key, "\""); print "<td>"key[2]"</td>";i++}}'`
+	echo $heads		# will get: <td>caseId</td> <td>status</td> <td>Message</td> <td>ingestionTime</td>
 	
-	echo $1
-	td_str=`echo $1 | awk 'BEGIN{FS=","}''{i=1; while(i<=NF) {print "<td>"$i"</td>";i++}}'`
-	echo $td_str
-
+	echo "</tr>"
 }
 
 function create_table_rows(){
-	echo -e "<tr><td>dfasdfasfd123</td>
-	</tr>"
+	echo "<tr>"
+
+	# resultsArray is: "caseId":"id-1","status":"READY","Message":null,"ingestionTime":123},{"caseId":"id-2","status":"READY","Message":null,"ingestionTime":456
+
+	rows=`echo $resultsArray | awk -F '},{' '{print $2}' | awk '
+		BEGIN{FS=","} 
+		{
+			i=1; 
+			while(i<=NF) {
+				split($i, valuee, ":"); 
+				if(index(valuee[2],"\"")==1){
+					split(valuee[2], value, "\""); 
+					print "<td>"value[2]"</td>";
+				}
+				else{
+					print "<td>"valuee[2]"</td>";
+				}
+				i++;
+			}
+		}
+		'
+		`
+	echo $rows		# will get: <td>id-1</td> <td>READY</td> <td>null</td> <td>123</td>
+	
+	echo "</tr>"
 }
 
 function create_html_end(){
-	echo -e "</table>
+	echo "</table>
 		</center>
 	</body>
 </html>"
@@ -83,3 +103,4 @@ function create_html(){
 #create_html
 
 create_table_head
+create_table_rows
