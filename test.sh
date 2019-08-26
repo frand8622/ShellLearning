@@ -1,31 +1,23 @@
 #!/bin/sh
 
-# file_input='/c/BeyondsoftProjects/hera/integration-api-test/target/IngestionResults/2019-08-15.json'
-# file_output='/c/BeyondsoftProjects/hera/integration-api-test/target/IngestionResults/table.html'
-file_input='/c/shell/2019-08-15.json'	# {"results":[{"caseId":"id-1","status":"READY","Message":null,"ingestionTime":123},{"caseId":"id-2","status":"READY","Message":null,"ingestionTime":456}]}
-file_output='/c/shell/table.html'
-
-file_temp1='/c/shell/temp1.txt'
-file_temp2='/c/shell/temp2.txt'
-file_temp3='/c/shell/temp3.txt'
+file_input='./IngestionResults/*.json'
+file_output='./IngestionResults/TableView.html'
 
 resultsArray=''
-headNames=''
-
 
 function initial(){
 	for file in $file_input
 	do
 		#echo $file
 		#cat $file
-		# echo $(basename ${file})
-		
-		#echo $(awk -F ':\\[\\{' '{print $2}' $file) | awk -F '\\}\\]\\}' '{print $1}'
-		#awk -F ':\\[\\{' '{print $2}' $file | awk -F '\\}\\]\\}' '{print $1}' | awk -F '\\},\\{' '{i=1; while(i<=NF) {print "<td>"$i"</td>";i++}}'
 
-		resultsArray=($(awk -F ':\\[\\{' '{print $2}' $file | awk -F '\\}\\]\\}' '{print $1}'))
-		# echo "results: "$resultsArray
-		# resultsArray is: "caseId":"id-1","status":"READY","Message":null,"ingestionTime":123},{"caseId":"id-2","status":"READY","Message":null,"ingestionTime":456
+		# fileFullName=$(basename ${file})
+		# fileName=`echo $fileFullName | awk -F '.' '{print $1}'`
+		# file_output=$file_output'/'$fileName'.html'
+
+		results=($(awk -F ':\\[\\{' '{print $2}' $file | awk -F '\\}\\]\\}' '{print $1}'))
+		resultsArray=$resultsArray'},{'$results
+		# resultsArray is: },{"caseId":"id-1","status":"READY","Message":null,"ingestionTime":123},{"caseId":"id-2","status":"READY","Message":null,"ingestionTime":456
 	done
 }
 
@@ -44,7 +36,7 @@ function create_table_head(){
 	# echo $heads
 	# echo "</tr>"
 
-	echo $resultsArray | awk -F '},{' '{print $1}' | awk -F ',' '{
+	echo $resultsArray | awk -F '},{' '{print $2}' | awk -F ',' '{
 		print "<tr>";
 		i=1; 
 		while(i<=NF) {
